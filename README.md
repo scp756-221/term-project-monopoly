@@ -17,6 +17,8 @@ will need to have installed Gatling
 (https://gatling.io/open-source/start-testing/) first, because you
 will be entering its path in `tpl-vars.txt`.
 
+tools/shell
+
 #### Instantiate the templates
 
 Once you have filled in all the details, run

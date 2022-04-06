@@ -36,7 +36,7 @@ object RMusic {
     feed(feeder)
     .exec(http("RMusic ${i}")
       .get("/api/v1/music/${UUID}"))
-      .pause(1)
+      .pause(Utility.envVarToInt("PAUSE_MILLI", 1000).millis)
   }
 
 }
@@ -49,10 +49,28 @@ object RUser {
     feed(feeder)
     .exec(http("RUser ${i}")
       .get("/api/v1/user/${UUID}"))
-    .pause(1)
+    .pause(Utility.envVarToInt("PAUSE_MILLI", 1000).millis)
   }
 
 }
+
+
+/*
+  Read playlist
+*/
+object RPlaylist {
+
+  val feeder = csv("playlist.csv").eager.circular
+
+  val rplaylist = forever("i") {
+    feed(feeder)
+    .exec(http("RPlaylist ${i}")
+      .get("/api/v1/playlist/${UUID}"))
+    .pause(Utility.envVarToInt("PAUSE_MILLI", 1000).millis)
+  }
+
+}
+
 
 /*
   After one S1 read, pause a random time between 1 and 60 s
@@ -82,6 +100,24 @@ object RMusicVarying {
     .pause(1, 60)
   }
 }
+
+
+/*
+  After one S3 read, pause a random time between 1 and 60 s
+*/
+
+object RPlaylistVarying {
+  val feeder = csv("playlist.csv").eager.circular
+
+  val rplaylist = forever("i") {
+    feed(feeder)
+    .exec(http("RPlaylistVarying ${i}")
+      .get("/api/v1/playlist/${UUID}"))
+    .pause(1, 60)
+  }
+}
+
+
 
 /*
   Failed attempt to interleave reads from User and Music tables.
@@ -134,6 +170,17 @@ class ReadMusicSim extends ReadTablesSim {
   ).protocols(httpProtocol)
 }
 
+
+class ReadPlaylistSim extends ReadTablesSim {
+  val scnReadPlaylist = scenario("ReadPlaylist")
+    .exec(RPlaylist.rplaylist)
+
+  setUp(
+    scnReadPlaylist.inject(atOnceUsers(Utility.envVarToInt("USERS", 1)))
+  ).protocols(httpProtocol)
+}
+
+
 /*
   Read both services concurrently at varying rates.
   Ramp up new users one / 10 s until requested USERS
@@ -154,6 +201,54 @@ class ReadBothVaryingSim extends ReadTablesSim {
     scnReadUV.inject(rampConcurrentUsers(1).to(users).during(10*users))
   ).protocols(httpProtocol)
 }
+
+/*
+  Read all services concurrently at varying rates.
+  Ramp up new users one / 10 s until requested USERS
+  is reached for each service.
+*/
+class ReadAllSim extends ReadTablesSim {
+  val scnReadMusic = scenario("ReadMusic")
+    .exec(RMusic.rmusic)
+  
+  val scnReadPlaylist = scenario("ReadPlaylist")
+    .exec(RPlaylist.rplaylist)
+
+  val scnReadUser = scenario("ReadUse")
+    .exec(RUser.ruser)
+
+  val users = Utility.envVarToInt("USERS", 1)
+
+  setUp(
+    // Add one user per 10 s up to specified value
+    scnReadUser.inject(atOnceUsers(Utility.envVarToInt("USERS", 1))),
+    scnReadMusic.inject(atOnceUsers(Utility.envVarToInt("USERS", 1))),
+    scnReadPlaylist.inject(atOnceUsers(Utility.envVarToInt("USERS", 1)))
+  ).protocols(httpProtocol)
+}
+
+class ReadAllVaryingSim extends ReadTablesSim {
+  val scnReadMV = scenario("ReadMusicVarying")
+    .exec(RMusicVarying.rmusic)
+  
+  val scnReadPV = scenario("ReadPlaylistVarying")
+    .exec(RPlaylistVarying.rplaylist)
+
+  val scnReadUV = scenario("ReadUserVarying")
+    .exec(RUserVarying.ruser)
+
+  val users = Utility.envVarToInt("USERS", 10)
+
+  setUp(
+    // Add one user per 10 s up to specified value
+    scnReadMV.inject(rampConcurrentUsers(1).to(users).during(10*users)),
+    scnReadPV.inject(rampConcurrentUsers(1).to(users).during(10*users)),
+    scnReadUV.inject(rampConcurrentUsers(1).to(users).during(10*users))
+  ).protocols(httpProtocol)
+}
+
+
+
 
 /*
   This doesn't work---it just reads the Music table.

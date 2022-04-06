@@ -44,7 +44,6 @@ spec:
       - name: users
         configMap:
           name: users
-      restartPolicy: Never
       - name: playlist
         configMap:
           name: playlist

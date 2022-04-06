@@ -156,6 +156,52 @@ class ReadBothVaryingSim extends ReadTablesSim {
 }
 
 /*
+  Read all services concurrently at varying rates.
+  Ramp up new users one / 10 s until requested USERS
+  is reached for each service.
+*/
+class ReadAllSim extends ReadTablesSim {
+  val scnReadMusic = scenario("ReadMusic")
+    .exec(RMusic.rmusic)
+  
+  val scnReadPlaylist = scenario("ReadPlaylist")
+    .exec(RPlaylist.rplaylist)
+
+  val scnReadUser = scenario("ReadUse")
+    .exec(RUser.ruser)
+
+  val users = Utility.envVarToInt("USERS", 1)
+
+  setUp(
+    // Add one user per 10 s up to specified value
+    scnReadUser.inject(atOnceUsers(Utility.envVarToInt("USERS", 1))),
+    scnReadMusic.inject(atOnceUsers(Utility.envVarToInt("USERS", 1))),
+    scnReadPlaylist.inject(atOnceUsers(Utility.envVarToInt("USERS", 1)))
+  ).protocols(httpProtocol)
+}
+
+class ReadAllVaryingSim extends ReadTablesSim {
+  val scnReadMV = scenario("ReadMusicVarying")
+    .exec(RMusicVarying.rmusic)
+  
+  val scnReadPV = scenario("ReadPlaylistVarying")
+    .exec(RPlaylistVarying.rplaylist)
+
+  val scnReadUV = scenario("ReadUserVarying")
+    .exec(RUserVarying.ruser)
+
+  val users = Utility.envVarToInt("USERS", 10)
+
+  setUp(
+    // Add one user per 10 s up to specified value
+    scnReadMV.inject(rampConcurrentUsers(1).to(users).during(10*users)),
+    scnReadPV.inject(rampConcurrentUsers(1).to(users).during(10*users)),
+    scnReadUV.inject(rampConcurrentUsers(1).to(users).during(10*users))
+  ).protocols(httpProtocol)
+}
+
+
+/*
   This doesn't work---it just reads the Music table.
   We left it in here as possible inspiration for other work
   (or a warning that this approach will fail).

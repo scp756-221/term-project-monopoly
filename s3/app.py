@@ -94,7 +94,7 @@ def create_playlist():
     try:
         content = request.get_json()
         PlaylistName = content['PlaylistName']
-        Songs = content['Songs'].strip().split(",")
+        Songs = content['Songs']
     except Exception:
         return json.dumps({"message": "error reading arguments"})
 

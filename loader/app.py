@@ -67,10 +67,10 @@ def create_song(artist, title, uuid):
     return (response.json())
   
   
-def create_playlist(PlaylistName, Songs, uuid):
+def create_playlist(name, songs, uuid):
     """
-    Create a song.
-    If a record already exists with the same artist and title,
+    Create a playlist.
+    If a record already exists with the same name and songs,
     the old UUID is replaced with this one.
     """
     url = db['name'] + '/load'
@@ -78,8 +78,8 @@ def create_playlist(PlaylistName, Songs, uuid):
         url,
         auth=build_auth(),
         json={"objtype": "playlist",
-              "PlaylistName": PlaylistName,
-              "Songs": Songs,
+              "PlaylistName": name,
+              "Songs": songs,
               "uuid": uuid})
     return (response.json())
 
@@ -134,7 +134,7 @@ if __name__ == '__main__':
                     uuid.strip())
           resp = check_resp(resp, 'playlist_id')
           if resp is None or resp != uuid:
-            print('Error creating playlist {} {}, {}'.format(PlaylistName,
-                                    Songs,
+            print('Error creating playlist {} {}, {}'.format(name,
+                                    songs,
                                     uuid))
               

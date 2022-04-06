@@ -61,6 +61,11 @@ BODY_MUSIC= { \
   "SongTitle": "Rio" \
 }
 
+BODY_PLAYLIST= { \
+  "PlaylistName": "Playlist_api_2", \
+  "Songs": ["6ecfafd0-8a35-4af6-a9e2-cbd79b3abeea", "c2573193-f333-49e2-abec-182915747756"] \
+}
+
 # this is a token for ???
 TOKEN=Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiMDI3Yzk5ZWYtM2UxMi00ZmM5LWFhYzgtMTcyZjg3N2MyZDI0IiwidGltZSI6MTYwMTA3NDY0NC44MTIxNjg2fQ.hR5Gbw5t2VMpLcj8yDz1B6tcWsWCFNiHB_KHpvQVNls
 BODY_TOKEN={ \
@@ -84,6 +89,10 @@ cuser:
 cmusic:
 	echo curl --location --request POST 'http://$(IGW)/api/v1/music/' --header '$(TOKEN)' --header 'Content-Type: application/json' --data-raw '$(BODY_MUSIC)' > $(LOG_DIR)/cmusic.out
 	$(CURL) --location --request POST 'http://$(IGW)/api/v1/music/' --header '$(TOKEN)' --header 'Content-Type: application/json' --data-raw '$(BODY_MUSIC)' | tee -a $(LOG_DIR)/cmusic.out
+
+cplaylist:
+	echo curl --location --request POST 'http://$(IGW)/api/v1/playlist/' --header '$(TOKEN)' --header 'Content-Type: application/json' --data-raw '$(BODY_PLAYLIST)' > $(LOG_DIR)/cplaylist.out
+	$(CURL) --location --request POST 'http://$(IGW)/api/v1/playlist/' --header '$(TOKEN)' --header 'Content-Type: application/json' --data-raw '$(BODY_PLAYLIST)' | tee -a $(LOG_DIR)/cplaylist.out
 
 # PUT is used for user (update) to update a record
 uuser:

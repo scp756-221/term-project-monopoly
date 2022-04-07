@@ -133,7 +133,7 @@ $ make -f k8s.mak prometheus-url
 
 ### 1. Simulate load
 
-To generate test load on all three applications, run:
+To generate test load on all three microservices, run:
 
 ~~~
 $ ./gatling-all.sh <Number_of_service_objects> <delay_between_each_request>

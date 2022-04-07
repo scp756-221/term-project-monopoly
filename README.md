@@ -133,7 +133,7 @@ $ make -f k8s.mak prometheus-url
 
 ### 1. Simulate load
 
-To generate test load on all three applications, run:
+To generate test load on all three microservices, run:
 
 ~~~
 $ ./gatling-all.sh <Number_of_service_objects> <delay_between_each_request>
@@ -147,7 +147,24 @@ $ ./gatling-all.sh 1000 300
 
 will send 1000 requests to each of the services with a 300 ms delay. 
 
-### 2. Stopping gatling
+### 2. Adjust nodes number and replicas
+
+The initial cluster nodes number is 2 (max 16). To adjust cluster nodes number, running:
+
+~~~
+$ eksctl scale nodegroup --name=worker-nodes --cluster aws756 --nodes <desired_nodes_number>
+~~~
+
+The initial service replicas is 1. To adjust replicas number, running:
+
+~~~
+$ kubectl scale deployment/cmpt756db --replicas=<desired_replicas_number>
+$ kubectl scale deployment/cmpt756s1 --replicas=<desired_replicas_number>
+$ kubectl scale deployment/cmpt756s2-v1 --replicas=<desired_replicas_number>
+$ kubectl scale deployment/cmpt756s3 --replicas=<desired_replicas_number>
+~~~
+
+### 3. Stopping gatling
 
 ~~~
 $ tools/kill-gatling.sh

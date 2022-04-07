@@ -164,7 +164,7 @@ $ kubectl scale deployment/cmpt756s2-v1 --replicas=<desired_replicas_number>
 $ kubectl scale deployment/cmpt756s3 --replicas=<desired_replicas_number>
 ~~~
 
-### 2. Stopping gatling
+### 3. Stopping gatling
 
 ~~~
 $ tools/kill-gatling.sh

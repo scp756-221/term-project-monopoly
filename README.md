@@ -1,20 +1,31 @@
 # Monopoly distributed service directory
 
 ## Directory structure
+
 Cluster: Config files of the cluster
+
 s1: User service
+
 s2: Music service
+
 s3: Playlist service
+
 db: database service
+
 mcli: music service cli
+
 logs: where logs files are stored
+
 loader: loader service is to insert fake data into the DynamoDB service
+
 gatling: used to simulate various users for load test
+
 tools: For quick scripts that are useful in make-files
 
 ## Getting started
 
-### 1. Install dependencies
+### 1. Install Gatling
+
 Gatling: (https://gatling.io/open-source/start-testing/)
 
 ### 2. Instantiate the template files

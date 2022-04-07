@@ -124,17 +124,12 @@ if __name__ == '__main__':
                 print('Error creating song {} {}, {}'.format(artist,
                                                              title,
                                                              uuid))
-                                                          
+
     with open('{}/playlist/playlist.csv'.format(resource_dir), 'r') as inp:
         rdr = csv.reader(inp)
         next(rdr)  # Skip header
         for name, songs, uuid in rdr:
-          resp = create_playlist(name.strip(),
-                    eval(songs.strip()),
-                    uuid.strip())
-          resp = check_resp(resp, 'playlist_id')
-          if resp is None or resp != uuid:
-            print('Error creating playlist {} {}, {}'.format(name,
-                                    songs,
-                                    uuid))
-              
+            resp = create_playlist(name.strip(), eval(songs.strip()), uuid.strip())
+            resp = check_resp(resp, 'playlist_id')
+            if resp is None or resp != uuid:
+                print('Error creating playlist {} {}, {}'.format(name, songs, uuid))

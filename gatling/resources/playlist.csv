@@ -1,3 +1,3 @@
 PlaylistName,Songs,UUID
-playlist1,[6ecfafd0-8a35-4af6-a9e2-cbd79b3abeea,c2573193-f333-49e2-abec-182915747756],ad07f576-a3fc-4697-8754-4907cbd46125
-playlist2,[6ecfafd0-8a35-4af6-a9e2-cbd79b3abeea,34707010-9f57-11ec-b909-0242ac120001],85d056c6-5aee-4015-baf0-6d8a218bdaf9
+playlist1,"['6ecfafd0-8a35-4af6-a9e2-cbd79b3abeea','c2573193-f333-49e2-abec-182915747756']",ad07f576-a3fc-4697-8754-4907cbd46125
+playlist2,"['6ecfafd0-8a35-4af6-a9e2-cbd79b3abeea','34707010-9f57-11ec-b909-0242ac120001']",85d056c6-5aee-4015-baf0-6d8a218bdaf9

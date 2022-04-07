@@ -1,25 +1,27 @@
-# SFU CMPT 756 main project directory
+# Monopoly distributed service directory
 
-This is the course repo for CMPT 756 (Spring 2022)
+## Directory structure
+Cluster: Config files of the cluster
+s1: User service
+s2: Music service
+s3: Playlist service
+db: database service
+mcli: music service cli
+logs: where logs files are stored
+loader: loader service is to insert fake data into the DynamoDB service
+gatling: used to simulate various users for load test
+tools: For quick scripts that are useful in make-files
 
-You will find resources for your assignments and term project here.
+## Getting started
 
+### 1. Install dependencies
+Gatling: (https://gatling.io/open-source/start-testing/)
 
-### 1. Instantiate the template files
+### 2. Instantiate the template files
 
-#### Fill in the required values in the template variable file
+Fill in all the required values in `tpl-vars-tpl.txt` and save it as `tpl-vars.txt`.
 
-Copy the file `cluster/tpl-vars-blank.txt` to `cluster/tpl-vars.txt`
-and fill in all the required values in `tpl-vars.txt`.  These include
-things like your AWS keys, your GitHub signon, and other identifying
-information.  See the comments in that file for details. Note that you
-will need to have installed Gatling
-(https://gatling.io/open-source/start-testing/) first, because you
-will be entering its path in `tpl-vars.txt`.
-
-tools/shell
-
-#### Instantiate the templates
+### 3. Instantiate the templates
 
 Once you have filled in all the details, run
 
@@ -27,34 +29,128 @@ Once you have filled in all the details, run
 $ make -f k8s-tpl.mak templates
 ~~~
 
-This will check that all the programs you will need have been
-installed and are in the search path.  If any program is missing,
-install it before proceeding.
+### 4. Login the container
 
-The script will then generate makefiles personalized to the data that
-you entered in `clusters/tpl-vars.txt`.
+~~~
+$ tools/shell.sh
+~~~
 
-**Note:** This is the *only* time you will call `k8s-tpl.mak`
-directly. This creates all the non-templated files, such as
-`k8s.mak`.  You will use the non-templated makefiles in all the
-remaining steps.
+## Deployments
 
-### 2. Ensure AWS DynamoDB is accessible/running
+This section assumes that all steps in the getting started section has been complete.
 
-Regardless of where your cluster will run, it uses AWS DynamoDB
-for its backend database. Check that you have the necessary tables
-installed by running
+### 1. Set up EKS Cluster
+
+Create a cluster with 2 nodes:
+
+~~~
+$ make -f eks.mak start
+~~~
+
+You could view the cluster with:
+
+~~~
+$ kubectl config get-contexts
+~~~
+
+### 2. Create namespace for the cluster
+
+~~~
+$ kubectl create ns c756ns
+$ kubectl config set-context aws756 --namespace=c756ns
+~~~
+
+### 3. Provision the cluster
+
+~~~
+$ make -f k8s.mak provision
+~~~
+
+### 4. Load the fake table to Dynamodb
+
+~~~
+$ make -f k8s.mak loader
+~~~
+
+This inserts data that exists in gatling/resources/*.csv into their respective tables
+
+### 5. Ensure AWS DynamoDB is accessible/running
+
+Check that you have the necessary tables installed by running
 
 ~~~
 $ aws dynamodb list-tables
 ~~~
 
-The resulting output should include tables `User` and `Music`.
+The resulting output should include tables `User`, `Music`, and `Playlist`.
 
-----
+## Monitoring tools
+
+### 1. Grafana
+
+To print the grafana URL, run:
+
+~~~
+$ make -f k8s.mak grafana-url
+~~~
+
+Click the URL and you could login Grafana with 
+username: admin
+password: prom-operator
+
+Select “Browse” from the left menu. This will bring up a list of dashboards. Click on c756 transactions and you could see the dashboard like below:
+![image](https://user-images.githubusercontent.com/97763994/162276198-5b012d89-bc0d-44d0-98ec-c925e3ee571b.png)
 
 
-### Reference
+### 2. Kiali
+
+To print the Kiali URL, run:
+
+~~~
+$ make -f k8s.mak kiali-url
+~~~
+
+### 3. Prometheus
+
+To print the Prometheus URL, run:
+
+~~~
+$ make -f k8s.mak prometheus-url
+~~~
+
+## Gatling load test 
+
+### 1. Simulate load
+
+To generate test load on all three applications, run:
+
+~~~
+$ ./gatling-all.sh <Number_of_service_objects> <delay_between_each_request>
+~~~
+
+For example:
+
+~~~
+$ ./gatling-all.sh 1000 300
+~~~
+
+will send 1000 requests to each of the services with a 300 ms delay. 
+
+### 2. Stopping gatling
+
+~~~
+$ tools/kill-gatling.sh
+~~~
+
+## Kill the cluster
+
+~~~
+$ make -f eks.mak stop
+~~~
+
+---
+
+## Reference
 
 This is the tree of this repo. 
 

@@ -5,6 +5,13 @@ import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
+/*
+TODO:
+1. You must run your application with up to a load of thousands of users (e.g, >1000 users) and hundreds of thousands requests (e.g., >100,00 requests/second).
+2. Other tests besides just reading from the table
+*/
+
+
 object Utility {
   /*
     Utility to get an Int from an environment variable.
@@ -28,6 +35,9 @@ object Utility {
   }
 }
 
+/*
+  Read music
+*/
 object RMusic {
 
   val feeder = csv("music.csv").eager.random
@@ -41,6 +51,9 @@ object RMusic {
 
 }
 
+/*
+  Read user
+*/
 object RUser {
 
   val feeder = csv("users.csv").eager.circular
@@ -53,7 +66,6 @@ object RUser {
   }
 
 }
-
 
 /*
   Read playlist
@@ -70,7 +82,6 @@ object RPlaylist {
   }
 
 }
-
 
 /*
   After one S1 read, pause a random time between 1 and 60 s
@@ -101,7 +112,6 @@ object RMusicVarying {
   }
 }
 
-
 /*
   After one S3 read, pause a random time between 1 and 60 s
 */
@@ -117,10 +127,8 @@ object RPlaylistVarying {
   }
 }
 
-
-
 /*
-  Failed attempt to interleave reads from User and Music tables.
+  Failed attempt to interleave reads from User, Music, Playlist tables.
   The Gatling EDSL only honours the second (Music) read,
   ignoring the first read of User. [Shrug-emoji] 
  */
@@ -128,6 +136,7 @@ object RBoth {
 
   val u_feeder = csv("users.csv").eager.circular
   val m_feeder = csv("music.csv").eager.random
+  val p_feeder = csv("playlist.csv").eager.random
 
   val rboth = forever("i") {
     feed(u_feeder)
@@ -138,7 +147,12 @@ object RBoth {
     feed(m_feeder)
     .exec(http("RMusic ${i}")
       .get("/api/v1/music/${UUID}"))
-      .pause(1)
+    .pause(1);
+
+    feed(p_feeder)
+    .exec(http("RPlaylist ${i}")
+      .get("/api/v1/playlist/${UUID}"))
+    .pause(1);
   }
 
 }
@@ -170,35 +184,12 @@ class ReadMusicSim extends ReadTablesSim {
   ).protocols(httpProtocol)
 }
 
-
 class ReadPlaylistSim extends ReadTablesSim {
   val scnReadPlaylist = scenario("ReadPlaylist")
     .exec(RPlaylist.rplaylist)
 
   setUp(
     scnReadPlaylist.inject(atOnceUsers(Utility.envVarToInt("USERS", 1)))
-  ).protocols(httpProtocol)
-}
-
-
-/*
-  Read both services concurrently at varying rates.
-  Ramp up new users one / 10 s until requested USERS
-  is reached for each service.
-*/
-class ReadBothVaryingSim extends ReadTablesSim {
-  val scnReadMV = scenario("ReadMusicVarying")
-    .exec(RMusicVarying.rmusic)
-
-  val scnReadUV = scenario("ReadUserVarying")
-    .exec(RUserVarying.ruser)
-
-  val users = Utility.envVarToInt("USERS", 10)
-
-  setUp(
-    // Add one user per 10 s up to specified value
-    scnReadMV.inject(rampConcurrentUsers(1).to(users).during(10*users)),
-    scnReadUV.inject(rampConcurrentUsers(1).to(users).during(10*users))
   ).protocols(httpProtocol)
 }
 
@@ -247,21 +238,17 @@ class ReadAllVaryingSim extends ReadTablesSim {
   ).protocols(httpProtocol)
 }
 
-
-
-
 /*
   This doesn't work---it just reads the Music table.
   We left it in here as possible inspiration for other work
   (or a warning that this approach will fail).
  */
 /*
-class ReadBothSim extends ReadTablesSim {
-  val scnReadBoth = scenario("ReadBoth")
-    .exec(RBoth.rboth)
-
+class ReadAllSim extends ReadTablesSim {
+  val scnReadAll = scenario("ReadAll")
+    .exec(RAll.rall)
   setUp(
-    scnReadBoth.inject(atOnceUsers(1))
+    scnReadAll.inject(atOnceUsers(1))
   ).protocols(httpProtocol)
 }
 */

@@ -2,7 +2,7 @@
 
 ## Directory structure
 
-Cluster: Config files of the cluster
+cluster: Config files of the cluster
 
 s1: User service
 
@@ -11,8 +11,6 @@ s2: Music service
 s3: Playlist service
 
 db: database service
-
-mcli: music service cli
 
 logs: where logs files are stored
 

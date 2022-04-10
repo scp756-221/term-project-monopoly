@@ -162,6 +162,13 @@ $ kubectl scale deployment/cmpt756s2-v1 --replicas=<desired_replicas_number>
 $ kubectl scale deployment/cmpt756s3 --replicas=<desired_replicas_number>
 ~~~
 
+The initial Dynamodb capacity is 5 units, to adjust capacity, running:
+~~~
+$ aws dynamodb update-table --table-name <your_table_name> --provisioned-throughput ReadCapacityUnits=100,WriteC
+apacityUnits=100
+~~~
+
+
 ### 3. Stopping gatling
 
 ~~~

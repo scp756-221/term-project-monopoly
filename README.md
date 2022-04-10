@@ -145,7 +145,7 @@ $ ./gatling-all.sh 1000 300
 
 will send 1000 requests to each of the services with a 300 ms delay. 
 
-### 2. Adjust nodes number and replicas
+### 2. Adjust cluster nodes number, microservice replicas, and Dynamodb read/write capacity
 
 The initial cluster nodes number is 2 (max 16). To adjust cluster nodes number, running:
 

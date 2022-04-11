@@ -2,7 +2,7 @@
 
 ## Directory structure
 
-cluster: Config files of the cluster
+cluster: configuration files to work with a Kubernetes cluster
 
 s1: User service
 
@@ -14,11 +14,11 @@ db: database service
 
 logs: where logs files are stored
 
-loader: loader service is to insert fake data into the DynamoDB service
+loader: loader service loads the DynamoDB tables, using the files users.csv, music.csv and playlist.csv from the Gatling resources directory.
 
 gatling: used to simulate various users for load test
 
-tools: For quick scripts that are useful in make-files
+tools: scripts that are useful in make-files
 
 ## Getting started
 
